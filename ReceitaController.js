@@ -1,9 +1,9 @@
 import Receita from "../models/Receita.js";
 import ReceitaItem from "../models/ReceitaItem.js";
 
-// ============================================================
+
 // FEATURE 1 — Emissão de receita
-// ============================================================
+
 async function inserir(req, res) {
     const prontuario_id = req.body.prontuario_id;
     const paciente_id = req.body.paciente_id;
@@ -23,10 +23,10 @@ async function inserir(req, res) {
 
     // Validação com o Prontuário (G5) — consome API externa
     try {
-        const resposta = await fetch(
-            `http://localhost:3005/registros/${prontuario_id}`,
-            { headers: { 'token': req.headers.token } }
-        );
+    const resposta = await fetch(
+              `http://localhost:3005/prontuario/paciente/${paciente_id}`,
+        { headers: { 'token': req.headers.token } }
+       );
         if (resposta.status === 404) {
             return res.status(422).json({ erro: true, mensagem: "Registro de prontuário não encontrado no G5." });
         }
@@ -58,9 +58,9 @@ async function inserir(req, res) {
     return res.json(receita);
 }
 
-// ============================================================
+
 // FEATURE 3 — Consulta de receitas
-// ============================================================
+
 async function listar(req, res) {
     const dados = await Receita.findAll({ order: [['emitida_em', 'DESC']] });
     return res.json(dados);
@@ -88,10 +88,10 @@ async function selecionar(req, res) {
     return res.json({ ...receita.dataValues, itens: itens });
 }
 
-// ============================================================
+
 // FEATURE 2 — Imutabilidade (substituição em vez de edição)
 // Não existe PUT/DELETE. Para corrigir, cria-se uma nova receita.
-// ============================================================
+
 async function substituir(req, res) {
     const idreceita = req.params.idreceita;
     const antiga = await Receita.findByPk(idreceita);
@@ -142,9 +142,8 @@ async function substituir(req, res) {
     return res.json(nova);
 }
 
-// ============================================================
+
 // INTEGRAÇÃO — Fornece para Farmácia (G8)
-// ============================================================
 
 // GET /receita/validar/:codigo
 // A farmácia envia o UUID impresso na receita e verifica se é válida
